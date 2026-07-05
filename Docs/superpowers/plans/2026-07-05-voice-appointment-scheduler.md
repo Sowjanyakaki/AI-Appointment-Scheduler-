@@ -44,7 +44,7 @@ Each phase produces independently testable, working software — Phase 4 is the 
 
 ## Phase 0: Project Scaffolding & Tooling
 
-### Task 0.1: Initialize the Next.js + TypeScript project
+### Task 1: Initialize the Next.js + TypeScript project
 
 **Files:**
 - Create: `package.json`, `tsconfig.json`, `next.config.ts`, `app/layout.tsx`, `app/page.tsx`
@@ -137,7 +137,7 @@ git commit -m "chore: scaffold Next.js + TypeScript project with vitest"
 
 ## Phase 1: Data Layer & Booking Code Generator
 
-### Task 1.1: SQLite schema and connection module
+### Task 2: SQLite schema and connection module
 
 **Files:**
 - Create: `lib/db/schema.sql`
@@ -262,14 +262,14 @@ git add lib/db
 git commit -m "feat: add SQLite schema and connection client"
 ```
 
-### Task 1.2: Booking code generator
+### Task 3: Booking code generator
 
 **Files:**
 - Create: `lib/booking/code-generator.ts`
 - Test: `lib/booking/code-generator.test.ts`
 
 **Interfaces:**
-- Consumes: `getDb()` from Task 1.1.
+- Consumes: `getDb()` from Task 2.
 - Produces: `generateBookingCode(kind: "booking" | "waitlist"): string`.
 
 - [ ] **Step 1: Write the failing test**
@@ -363,7 +363,7 @@ git commit -m "feat: add collision-checked booking code generator"
 
 Since MCP-server (Calendar/Notes/Email) is being built separately and isn't deployed yet, this phase builds a same-contract mock inside this app (`app/api/mock-mcp/*`) so the Conversation Engine can be developed and tested now. Swapping to the real server later is a one-line env change (`MCP_BASE_URL`), touching no other code.
 
-### Task 2.1: MCP client module
+### Task 4: MCP client module
 
 **Files:**
 - Create: `lib/mcp/client.ts`
@@ -501,7 +501,7 @@ git add lib/mcp/client.ts lib/mcp/client.test.ts
 git commit -m "feat: add MCP client for Calendar/Notes/Email tool calls"
 ```
 
-### Task 2.2: Local mock MCP server (Calendar/Notes/Email)
+### Task 5: Local mock MCP server (Calendar/Notes/Email)
 
 **Files:**
 - Create: `app/api/mock-mcp/list-slots/route.ts`
@@ -651,7 +651,7 @@ git commit -m "feat: add local mock MCP server for Calendar/Notes/Email"
 
 ## Phase 3: Conversation Guardrails & Intent Classifier
 
-### Task 3.1: PII guard
+### Task 6: PII guard
 
 **Files:**
 - Create: `lib/conversation/pii-guard.ts`
@@ -716,7 +716,7 @@ git add lib/conversation/pii-guard.ts lib/conversation/pii-guard.test.ts
 git commit -m "feat: add PII guard for call transcripts"
 ```
 
-### Task 3.2: Scope guardrail (investment-advice refusal)
+### Task 7: Scope guardrail (investment-advice refusal)
 
 **Files:**
 - Create: `lib/conversation/scope-guardrail.ts`
@@ -788,7 +788,7 @@ git add lib/conversation/scope-guardrail.ts lib/conversation/scope-guardrail.tes
 git commit -m "feat: add investment-advice scope guardrail"
 ```
 
-### Task 3.3: Intent classifier (Groq)
+### Task 8: Intent classifier (Groq)
 
 **Files:**
 - Create: `lib/conversation/intent-classifier.ts`
@@ -872,7 +872,7 @@ git commit -m "feat: add Groq-based intent classifier"
 
 ## Phase 4: Dialogue State Machine & Text Chat API
 
-### Task 4.1: Topic set and fixed-topic matcher
+### Task 9: Topic set and fixed-topic matcher
 
 **Files:**
 - Create: `lib/conversation/topics.ts`
@@ -960,14 +960,14 @@ git add lib/conversation/topics.ts lib/conversation/topics.test.ts
 git commit -m "feat: add fixed topic set and keyword matcher"
 ```
 
-### Task 4.2: Session store
+### Task 10: Session store
 
 **Files:**
 - Create: `lib/conversation/session-store.ts`
 - Test: `lib/conversation/session-store.test.ts`
 
 **Interfaces:**
-- Consumes: `getDb()` (Task 1.1).
+- Consumes: `getDb()` (Task 2).
 - Produces: `Session` type, `createSession(): Session`, `getSession(id: string): Session | null`, `saveSession(session: Session): void`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1121,14 +1121,14 @@ git add lib/conversation/session-store.ts lib/conversation/session-store.test.ts
 git commit -m "feat: add SQLite-backed conversation session store"
 ```
 
-### Task 4.3: Dialogue state machine
+### Task 11: Dialogue state machine
 
 **Files:**
 - Create: `lib/conversation/state-machine.ts`
 - Test: `lib/conversation/state-machine.test.ts`
 
 **Interfaces:**
-- Consumes: `Session`/`SessionState` (Task 4.2), `matchTopic` (Task 4.1), `classifyIntent` (Task 3.3), `containsPII` (Task 3.1), `isInvestmentAdviceRequest`/`SCOPE_REFUSAL_MESSAGE` (Task 3.2), `listSlots`/`createHold` (Task 2.1), `generateBookingCode` (Task 1.2).
+- Consumes: `Session`/`SessionState` (Task 10), `matchTopic` (Task 9), `classifyIntent` (Task 8), `containsPII` (Task 6), `isInvestmentAdviceRequest`/`SCOPE_REFUSAL_MESSAGE` (Task 7), `listSlots`/`createHold` (Task 4), `generateBookingCode` (Task 3).
 - Produces: `advance(session: Session, callerText: string): Promise<{ session: Session; reply: string }>` — the single entry point the chat/voice APIs call per turn.
 
 - [ ] **Step 1: Write the failing tests**
@@ -1394,14 +1394,14 @@ git add lib/conversation/state-machine.ts lib/conversation/state-machine.test.ts
 git commit -m "feat: implement dialogue state machine for booking flow"
 ```
 
-### Task 4.4: Text chat API route
+### Task 12: Text chat API route
 
 **Files:**
 - Create: `app/api/chat/route.ts`
 - Test: `app/api/chat/chat.test.ts`
 
 **Interfaces:**
-- Consumes: `createSession`/`getSession` (Task 4.2), `advance` (Task 4.3).
+- Consumes: `createSession`/`getSession` (Task 10), `advance` (Task 11).
 - Produces: `POST /api/chat` accepting `{ sessionId?: string; message: string }`, returning `{ sessionId: string; reply: string; state: string }`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1504,7 +1504,7 @@ git commit -m "feat: add text chat API wiring the full booking flow end-to-end"
 
 ## Phase 5: Voice I/O Bridge — STT (Groq Whisper)
 
-### Task 5.1: Whisper transcription wrapper
+### Task 13: Whisper transcription wrapper
 
 **Files:**
 - Create: `lib/voice/transcribe.ts`
@@ -1580,14 +1580,14 @@ git add lib/voice/transcribe.ts lib/voice/transcribe.test.ts
 git commit -m "feat: add Groq Whisper transcription wrapper"
 ```
 
-### Task 5.2: Transcribe API route
+### Task 14: Transcribe API route
 
 **Files:**
 - Create: `app/api/voice/transcribe/route.ts`
 - Test: `app/api/voice/transcribe/transcribe-route.test.ts`
 
 **Interfaces:**
-- Consumes: `transcribeAudio` (Task 5.1).
+- Consumes: `transcribeAudio` (Task 13).
 - Produces: `POST /api/voice/transcribe` accepting `multipart/form-data` with an `audio` file field, returning `{ transcript: string }`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1679,7 +1679,7 @@ curl -L -o bin/en_US-lessac-medium.onnx.json https://huggingface.co/rhasspy/pipe
 ```
 Set `PIPER_BIN` and `PIPER_MODEL` in `.env.local` to the extracted paths. The unit tests below mock `child_process` so they don't require the binary to be present.
 
-### Task 6.1: Piper synthesis wrapper
+### Task 15: Piper synthesis wrapper
 
 **Files:**
 - Create: `lib/voice/synthesize.ts`
@@ -1772,14 +1772,14 @@ git add lib/voice/synthesize.ts lib/voice/synthesize.test.ts
 git commit -m "feat: add Piper TTS synthesis wrapper"
 ```
 
-### Task 6.2: Synthesize API route
+### Task 16: Synthesize API route
 
 **Files:**
 - Create: `app/api/voice/synthesize/route.ts`
 - Test: `app/api/voice/synthesize/synthesize-route.test.ts`
 
 **Interfaces:**
-- Consumes: `synthesizeSpeech` (Task 6.1).
+- Consumes: `synthesizeSpeech` (Task 15).
 - Produces: `POST /api/voice/synthesize` accepting `{ text: string }`, returning `audio/wav` bytes.
 
 - [ ] **Step 1: Write the failing test**
@@ -1846,7 +1846,7 @@ git commit -m "feat: add /api/voice/synthesize route"
 
 ## Phase 7: Web Voice Client
 
-### Task 7.1: Push-to-talk voice page
+### Task 17: Push-to-talk voice page
 
 For a POC, push-to-talk (hold a button to record, release to send) is far more reliable than voice-activity detection and needs no extra library — this is a deliberate simplification over always-on listening.
 
@@ -2020,7 +2020,7 @@ git commit -m "feat: add push-to-talk web voice client"
 
 ## Phase 8: Secure Post-Call Portal
 
-### Task 8.1: Secure link generation
+### Task 18: Secure link generation
 
 **Files:**
 - Modify: `lib/conversation/state-machine.ts` (WRAP_UP branch, both booking and waitlist paths)
@@ -2028,7 +2028,7 @@ git commit -m "feat: add push-to-talk web voice client"
 - Test: `lib/portal/secure-links.test.ts`
 
 **Interfaces:**
-- Consumes: `getDb()` (Task 1.1).
+- Consumes: `getDb()` (Task 2).
 - Produces: `createSecureLink(bookingCode: string): { token: string; url: string }`, `resolveSecureLink(token: string): { bookingCode: string } | null`, `markLinkUsed(token: string): void`.
 
 - [ ] **Step 1: Write the failing test**
@@ -2148,7 +2148,7 @@ And the waitlist-path reply construction:
 
 - [ ] **Step 6: Rerun state-machine tests**
 
-`lib/conversation/state-machine.test.ts` (written in Task 4.3) already asserts `expect(result.reply).toMatch(/\/booking\//);` in both the "happy path" and "waitlist fallback" tests, anticipating this task's change — no test edits needed here.
+`lib/conversation/state-machine.test.ts` (written in Task 11) already asserts `expect(result.reply).toMatch(/\/booking\//);` in both the "happy path" and "waitlist fallback" tests, anticipating this task's change — no test edits needed here.
 
 Run: `npm test -- lib/conversation/state-machine.test.ts`
 Expected: `5 passed`
@@ -2160,7 +2160,7 @@ git add lib/portal/secure-links.ts lib/portal/secure-links.test.ts lib/conversat
 git commit -m "feat: generate secure post-call portal links at wrap-up"
 ```
 
-### Task 8.2: Portal page and contact-submission route
+### Task 19: Portal page and contact-submission route
 
 **Files:**
 - Create: `app/booking/[token]/page.tsx`
@@ -2168,7 +2168,7 @@ git commit -m "feat: generate secure post-call portal links at wrap-up"
 - Test: `app/api/portal/submit/submit-route.test.ts`
 
 **Interfaces:**
-- Consumes: `resolveSecureLink`, `markLinkUsed` (Task 8.1).
+- Consumes: `resolveSecureLink`, `markLinkUsed` (Task 18).
 - Produces: `POST /api/portal/submit` accepting `{ token, phone?, email?, accountNumber? }`, returning `{ status: "ok" }` or 410 for an invalid/used token.
 
 - [ ] **Step 1: Write the failing test**
@@ -2324,7 +2324,7 @@ git commit -m "feat: add secure post-call portal page and submission route"
 
 ## Phase 9: Deployment to Railway
 
-### Task 9.1: Railway service configuration
+### Task 20: Railway service configuration
 
 **Files:**
 - Create: `railway.toml`
@@ -2400,7 +2400,7 @@ git add Dockerfile railway.toml .env.local.example
 git commit -m "chore: add Railway/Docker deployment configuration"
 ```
 
-### Task 9.2: Deploy and smoke test
+### Task 21: Deploy and smoke test
 
 - [ ] **Step 1: Link and deploy**
 
@@ -2433,7 +2433,7 @@ Open `https://<your-app>.up.railway.app/voice` in a browser, hold the button, sp
 ## Self-Review Notes
 
 - **Spec coverage**: all five intents (`book_new`, `reschedule`, `cancel`, `what_to_prepare`, `check_availability`) are classified in Phase 3; only `book_new`'s full state path is built out task-by-task in Phase 4 for time — **reschedule/cancel/what_to_prepare/check_availability branches in the state machine are a follow-up plan**, not yet covered here, since the brief's five core intents share the same guardrail/topic/slot machinery but diverge in their `SLOT_CONFIRM`-equivalent step. Flagging this explicitly rather than leaving a placeholder: extend `advance()`'s switch with `RESCHEDULE_LOOKUP`, `CANCEL_CONFIRM`, etc., reusing `matchTopic`, `containsPII`, and the MCP client as-is.
-- **PII constraint**: enforced centrally in `advance()` (Task 4.3) before any other branch runs, plus no PII columns anywhere outside `portal_contacts` (Task 1.1, Task 8.2).
-- **IST constraint**: slot labels are generated with an explicit `IST` suffix at the mock-MCP boundary (Task 2.2) and repeated verbatim through `SLOT_CONFIRM`/`WRAP_UP` replies (Task 4.3).
-- **No-match fallback**: implemented as the `WAITLIST_EXECUTE` branch (Task 4.3), producing an `NL-W`-prefixed code and its own notes/email calls.
-- **Scope discipline**: `isInvestmentAdviceRequest` runs ahead of state-specific logic on every turn except the very first (Task 4.3).
+- **PII constraint**: enforced centrally in `advance()` (Task 11) before any other branch runs, plus no PII columns anywhere outside `portal_contacts` (Task 2, Task 19).
+- **IST constraint**: slot labels are generated with an explicit `IST` suffix at the mock-MCP boundary (Task 5) and repeated verbatim through `SLOT_CONFIRM`/`WRAP_UP` replies (Task 11).
+- **No-match fallback**: implemented as the `WAITLIST_EXECUTE` branch (Task 11), producing an `NL-W`-prefixed code and its own notes/email calls.
+- **Scope discipline**: `isInvestmentAdviceRequest` runs ahead of state-specific logic on every turn except the very first (Task 11).
