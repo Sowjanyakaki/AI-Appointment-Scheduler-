@@ -1202,6 +1202,7 @@ describe("advance", () => {
     expect(result.session.bookingCode).toMatch(/^NL-[A-Z]\d{3}$/);
     expect(result.reply).toMatch(/IST/);
     expect(result.reply).toContain(result.session.bookingCode);
+    expect(result.reply).toMatch(/\/booking\//);
   });
 
   it("falls back to a waitlist when neither offered slot is accepted", async () => {
@@ -1216,6 +1217,7 @@ describe("advance", () => {
     expect(result.session.state).toBe("WRAP_UP");
     expect(result.session.bookingCode).toMatch(/^NL-W\d{3}$/);
     expect(result.reply).toMatch(/waitlist/i);
+    expect(result.reply).toMatch(/\/booking\//);
   });
 });
 ```
@@ -2144,13 +2146,9 @@ And the waitlist-path reply construction:
         };
 ```
 
-- [ ] **Step 6: Update state-machine.test.ts expectations and rerun**
+- [ ] **Step 6: Rerun state-machine tests**
 
-In `lib/conversation/state-machine.test.ts`, extend the two final assertions:
-```typescript
-    expect(result.reply).toMatch(/\/booking\//);
-```
-(add this line to both the "happy path" and "waitlist fallback" tests, right after the existing `expect(result.reply)...` lines)
+`lib/conversation/state-machine.test.ts` (written in Task 4.3) already asserts `expect(result.reply).toMatch(/\/booking\//);` in both the "happy path" and "waitlist fallback" tests, anticipating this task's change — no test edits needed here.
 
 Run: `npm test -- lib/conversation/state-machine.test.ts`
 Expected: `5 passed`
