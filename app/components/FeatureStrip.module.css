@@ -1,0 +1,75 @@
+.section {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px) 48px;
+}
+
+.grid {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 36px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.brand {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.green {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.purple {
+  background: var(--purple-soft);
+  color: var(--purple);
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.description {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+}

@@ -1,0 +1,125 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 20px clamp(20px, 5vw, 64px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.logoMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.logoIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--ink);
+}
+
+.brandAccent {
+  color: var(--brand);
+}
+
+.brandTagline {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.nav a:hover {
+  color: var(--brand);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signIn,
+.getStarted {
+  appearance: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.signIn {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--brand);
+}
+
+.signIn:hover {
+  border-color: var(--brand);
+}
+
+.getStarted {
+  background: var(--brand);
+  border: 1px solid var(--brand);
+  color: #fff;
+}
+
+.getStarted:hover {
+  background: var(--brand-dark);
+}
+
+.signIn:focus-visible,
+.getStarted:focus-visible {
+  outline: 2px solid var(--brand-dark);
+  outline-offset: 2px;
+}
+
+@media (max-width: 960px) {
+  .nav {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .brandTagline {
+    display: none;
+  }
+
+  .signIn {
+    display: none;
+  }
+}

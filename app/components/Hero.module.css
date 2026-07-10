@@ -1,0 +1,118 @@
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+
+.eyebrowIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.heading {
+  font-size: clamp(2.1rem, 4vw, 2.9rem);
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.headingAccent {
+  color: var(--brand);
+}
+
+.lead {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin-top: 4px;
+}
+
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.checkIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--brand);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.primaryCta,
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 13px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.primaryCta {
+  background: var(--brand);
+  border: 1px solid var(--brand);
+  color: #fff;
+}
+
+.primaryCta:hover {
+  background: var(--brand-dark);
+}
+
+.secondaryCta {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+.secondaryCta:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.ctaIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.primaryCta:focus-visible,
+.secondaryCta:focus-visible {
+  outline: 2px solid var(--brand-dark);
+  outline-offset: 2px;
+}

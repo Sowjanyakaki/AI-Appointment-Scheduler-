@@ -1,0 +1,60 @@
+.timeline {
+  list-style: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-left: 4px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 19px;
+  top: 20px;
+  bottom: 20px;
+  width: 1px;
+  background-image: linear-gradient(var(--border) 60%, transparent 0%);
+  background-size: 1px 8px;
+  background-repeat: repeat-y;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.stepIcon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--brand);
+  flex-shrink: 0;
+}
+
+.stepIconGlyph {
+  width: 18px;
+  height: 18px;
+}
+
+.stepTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.stepDescription {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
