@@ -1,46 +1,100 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { turnsFromResponse, type ChatApiResponse, type ChatTurn } from "./chat-turns";
 import { CalendarIcon, CheckIcon, MicIcon } from "./icons";
 import styles from "./ChatDemo.module.css";
 
-export type ChatTurn =
-  | { kind: "agent"; text: string }
-  | { kind: "user"; text: string }
-  | { kind: "slots"; label: string; slots: { number: number; label: string }[] }
-  | { kind: "confirmation"; title: string; code: string; note: string };
-
-// Seed data mirrors the scripted demo conversation from the product mockup.
-// Phase 4 replaces this with live turns from POST /api/chat — the turn
-// shape (ChatTurn) is designed to be produced by that endpoint directly.
-const DEMO_TURNS: ChatTurn[] = [
-  {
-    kind: "agent",
-    text: "Hi! I'm your AI Voice Agent. I can help you book a tentative appointment with a human advisor.",
-  },
-  { kind: "user", text: "I'd like to discuss investment planning next week." },
-  {
-    kind: "slots",
-    label: "Here are some available slots:",
-    slots: [
-      { number: 1, label: "Tue, 13 May 2025 – 10:00 AM" },
-      { number: 2, label: "Tue, 13 May 2025 – 02:00 PM" },
-      { number: 3, label: "Wed, 14 May 2025 – 11:30 AM" },
-    ],
-  },
-  { kind: "agent", text: "Shall I book Tue, 13 May 2025 at 10:00 AM?" },
-  { kind: "user", text: "Yes, please." },
-  {
-    kind: "confirmation",
-    title: "You're all set!",
-    code: "AC7X-9K2P",
-    note: "A secure link to complete your details has been sent to your email.",
-  },
-];
+const GENERIC_ERROR_TEXT = "Sorry, something went wrong on my end. Please try again.";
 
 export function ChatDemo() {
+  const [turns, setTurns] = useState<ChatTurn[]>([]);
+  const [input, setInput] = useState("");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const startedRef = useRef(false);
+  const logRef = useRef<HTMLDivElement>(null);
+
+  async function sendMessage(message: string) {
+    setPending(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: sessionId ?? undefined, message }),
+      });
+
+      if (!res.ok) {
+        setTurns((prev) => [...prev, { kind: "agent", text: GENERIC_ERROR_TEXT }]);
+        return;
+      }
+
+      const data = (await res.json()) as ChatApiResponse;
+      setSessionId(data.sessionId);
+      setTurns((prev) => [...prev, ...turnsFromResponse(data)]);
+    } catch {
+      setTurns((prev) => [...prev, { kind: "agent", text: GENERIC_ERROR_TEXT }]);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    void sendMessage("hi");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
+  }, [turns]);
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const message = input.trim();
+    if (!message || pending) return;
+
+    setTurns((prev) => [...prev, { kind: "user", text: message }]);
+    setInput("");
+    void sendMessage(message);
+  }
+
   return (
-    <div className={styles.card} role="log" aria-label="Voice agent booking demo">
-      {DEMO_TURNS.map((turn, index) => (
-        <ChatTurnView key={index} turn={turn} />
-      ))}
+    <div className={styles.wrapper}>
+      <div className={styles.card} role="log" aria-label="Voice agent booking demo" ref={logRef}>
+        {turns.map((turn, index) => (
+          <ChatTurnView key={index} turn={turn} />
+        ))}
+        {pending && (
+          <div className={styles.agentRow}>
+            <span className={styles.agentAvatar}>
+              <MicIcon className={styles.agentAvatarIcon} />
+            </span>
+            <p className={styles.agentBubble} aria-live="polite">
+              …
+            </p>
+          </div>
+        )}
+      </div>
+
+      <form className={styles.inputRow} onSubmit={handleSubmit}>
+        <label htmlFor="chat-demo-input" className={styles.visuallyHidden}>
+          Message the voice agent
+        </label>
+        <input
+          id="chat-demo-input"
+          className={styles.input}
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          placeholder="Type your reply…"
+          disabled={pending}
+          autoComplete="off"
+        />
+        <button type="submit" className={styles.sendButton} disabled={pending || !input.trim()}>
+          Send
+        </button>
+      </form>
     </div>
   );
 }
