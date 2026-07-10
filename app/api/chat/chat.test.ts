@@ -45,4 +45,35 @@ describe("POST /api/chat", () => {
     expect(second.sessionId).toBe(first.sessionId);
     expect(second.state).toBe("TOPIC_CONFIRM");
   });
+
+  it("surfaces offeredSlots once the caller reaches slot offer", async () => {
+    let data = await (await POST(chatRequest({ message: "hi" }))).json();
+    data = await (await POST(chatRequest({ sessionId: data.sessionId, message: "yes" }))).json();
+    data = await (
+      await POST(chatRequest({ sessionId: data.sessionId, message: "SIP mandate please" }))
+    ).json();
+    data = await (
+      await POST(chatRequest({ sessionId: data.sessionId, message: "Tuesday afternoon" }))
+    ).json();
+
+    expect(data.offeredSlots).toHaveLength(2);
+    expect(data.offeredSlots[0].label).toBe("Tue – 9:00 AM IST");
+  });
+
+  it("surfaces bookingCode and secureLink once a booking completes", async () => {
+    let data = await (await POST(chatRequest({ message: "hi" }))).json();
+    data = await (await POST(chatRequest({ sessionId: data.sessionId, message: "yes" }))).json();
+    data = await (
+      await POST(chatRequest({ sessionId: data.sessionId, message: "SIP mandate please" }))
+    ).json();
+    data = await (
+      await POST(chatRequest({ sessionId: data.sessionId, message: "Tuesday afternoon" }))
+    ).json();
+    data = await (
+      await POST(chatRequest({ sessionId: data.sessionId, message: "the first one" }))
+    ).json();
+
+    expect(data.bookingCode).toMatch(/^NL-[A-Z]\d{3}$/);
+    expect(data.secureLink).toMatch(/^\/booking\//);
+  });
 });

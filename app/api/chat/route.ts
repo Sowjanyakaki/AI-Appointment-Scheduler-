@@ -7,11 +7,17 @@ export async function POST(request: Request) {
   const session = body.sessionId ? getSession(body.sessionId) : null;
   const activeSession = session ?? createSession();
 
-  const { session: nextSession, reply } = await advance(activeSession, body.message);
+  const { session: nextSession, reply, offeredSlots, secureLink } = await advance(
+    activeSession,
+    body.message
+  );
 
   return Response.json({
     sessionId: nextSession.id,
     reply,
     state: nextSession.state,
+    offeredSlots,
+    bookingCode: nextSession.bookingCode,
+    secureLink,
   });
 }

@@ -49,6 +49,17 @@ describe("advance", () => {
     expect(reply).not.toMatch(/jane@example\.com/);
   });
 
+  it("returns the offered slots directly alongside the reply text", async () => {
+    let session = createSession();
+    ({ session } = await advance(session, "hi"));
+    ({ session } = await advance(session, "yes I understand"));
+    ({ session } = await advance(session, "I want to talk about my SIP mandate"));
+    const result = await advance(session, "Tuesday afternoon works");
+
+    expect(result.offeredSlots).toHaveLength(2);
+    expect(result.offeredSlots?.[0].label).toMatch(/IST/);
+  });
+
   it("runs the full happy path to a booking code", async () => {
     let session = createSession();
     ({ session } = await advance(session, "hi"));
@@ -66,6 +77,8 @@ describe("advance", () => {
     expect(result.reply).toMatch(/IST/);
     expect(result.reply).toContain(result.session.bookingCode);
     expect(result.reply).toMatch(/\/booking\//);
+    expect(result.secureLink).toMatch(/^\/booking\//);
+    expect(result.reply).toContain(result.secureLink);
   });
 
   it("falls back to a waitlist when neither offered slot is accepted", async () => {
@@ -81,5 +94,6 @@ describe("advance", () => {
     expect(result.session.bookingCode).toMatch(/^NL-W\d{3}$/);
     expect(result.reply).toMatch(/waitlist/i);
     expect(result.reply).toMatch(/\/booking\//);
+    expect(result.secureLink).toMatch(/^\/booking\//);
   });
 });

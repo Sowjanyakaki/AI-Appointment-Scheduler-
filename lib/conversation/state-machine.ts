@@ -7,6 +7,7 @@ import { matchTopic } from "./topics";
 import { listSlots, createHold, appendEntry, prepareDraft } from "@/lib/mcp/client";
 import { generateBookingCode } from "@/lib/booking/code-generator";
 import { saveSession, type Session } from "./session-store";
+import type { Slot } from "@/lib/mcp/client";
 
 const DISCLAIMER =
   "This call is informational only and not investment advice. What would you like help with today?";
@@ -44,10 +45,14 @@ function createSecureLink(bookingCode: string): string {
   return `/booking/${token}`;
 }
 
-export async function advance(
-  session: Session,
-  callerText: string
-): Promise<{ session: Session; reply: string }> {
+export interface AdvanceResult {
+  session: Session;
+  reply: string;
+  offeredSlots?: Slot[];
+  secureLink?: string;
+}
+
+export async function advance(session: Session, callerText: string): Promise<AdvanceResult> {
   if (containsPII(callerText)) {
     return { session, reply: PII_REDIRECT };
   }
@@ -100,6 +105,7 @@ export async function advance(
       return {
         session,
         reply: `I have two options: first, ${slots[0].label}; second, ${slots[1].label}. Which works, or neither?`,
+        offeredSlots: slots,
       };
     }
 
@@ -131,6 +137,7 @@ export async function advance(
           reply:
             `No problem — I've added you to the waitlist with code ${code}. ` +
             `An advisor will reach out once a slot opens up. Visit ${link} to share your contact details.`,
+          secureLink: link,
         };
       }
 
@@ -158,6 +165,7 @@ export async function advance(
         reply:
           `You're booked for ${slot.label}. Your code is ${code}. ` +
           `Visit the secure link ${link} to share your contact details.`,
+        secureLink: link,
       };
     }
 
