@@ -41,4 +41,18 @@ describe("POST /api/voice/transcribe", () => {
     const res = await POST(request);
     expect(res.status).toBe(413);
   });
+
+  it("rejects an oversized upload from Content-Length without ever parsing the body", async () => {
+    const request = new Request("http://localhost/api/voice/transcribe", {
+      method: "POST",
+      headers: { "content-length": String(25 * 1024 * 1024 + 1) },
+      body: new FormData(),
+    });
+    const formDataSpy = vi.spyOn(request, "formData");
+
+    const res = await POST(request);
+
+    expect(res.status).toBe(413);
+    expect(formDataSpy).not.toHaveBeenCalled();
+  });
 });
