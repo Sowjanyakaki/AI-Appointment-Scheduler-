@@ -18,12 +18,13 @@ const PII_REDIRECT =
 const NOTES_DOC_ID = process.env.NOTES_DOC_ID ?? "advisor-pre-bookings";
 const ADVISOR_EMAIL = process.env.ADVISOR_EMAIL ?? "advisor@example.com";
 
-function acceptsSlot(text: string): "first" | "second" | "neither" {
+function acceptsSlot(text: string): "first" | "second" | "neither" | "clarify" {
   const lower = text.toLowerCase();
-  if (/first|1st|one\b/.test(lower)) return "first";
-  if (/second|2nd|two\b/.test(lower)) return "second";
-  if (/neither|none|no /.test(lower)) return "neither";
-  return "neither";
+  if (/first|1st|one\b|\b1\b/.test(lower)) return "first";
+  if (/second|2nd|two\b|\b2\b/.test(lower)) return "second";
+  if (/neither|none|no\b/.test(lower)) return "neither";
+  if (/yes|yeah|yup|sure|works|confirm|ok\b/.test(lower)) return "clarify";
+  return "clarify";
 }
 
 export interface AdvanceResult {
@@ -92,6 +93,15 @@ export async function advance(session: Session, callerText: string): Promise<Adv
 
     case "SLOT_CONFIRM": {
       const choice = acceptsSlot(callerText);
+
+      if (choice === "clarify") {
+        return {
+          session,
+          reply: "Would you prefer the first option or the second option, or neither?",
+          offeredSlots: session.offeredSlots,
+        };
+      }
+
       const code =
         choice === "neither" ? generateBookingCode("waitlist") : generateBookingCode("booking");
       const { url: link } = createSecureLink(code);

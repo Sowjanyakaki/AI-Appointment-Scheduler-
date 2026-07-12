@@ -96,4 +96,32 @@ describe("advance", () => {
     expect(result.reply).toMatch(/\/booking\//);
     expect(result.secureLink).toMatch(/^\/booking\//);
   });
+
+  it("successfully books when selecting by digit '2'", async () => {
+    let session = createSession();
+    ({ session } = await advance(session, "hi"));
+    ({ session } = await advance(session, "yes"));
+    ({ session } = await advance(session, "SIP mandate please"));
+    ({ session } = await advance(session, "Tuesday"));
+
+    const result = await advance(session, "2");
+
+    expect(result.session.state).toBe("WRAP_UP");
+    expect(result.session.bookingCode).toMatch(/^NL-[A-Z]\d{3}$/);
+    expect(result.session.chosenSlot).toEqual({ id: "s2", startIso: "2026-07-07T14:00:00+05:30", label: "Tue, 7 Jul – 2:00 PM IST" });
+  });
+
+  it("prompts for clarification on ambiguous slot selection like 'yes'", async () => {
+    let session = createSession();
+    ({ session } = await advance(session, "hi"));
+    ({ session } = await advance(session, "yes"));
+    ({ session } = await advance(session, "SIP mandate please"));
+    ({ session } = await advance(session, "Tuesday"));
+
+    const result = await advance(session, "yes");
+
+    expect(result.session.state).toBe("SLOT_CONFIRM");
+    expect(result.reply).toMatch(/prefer the first option or the second option/i);
+  });
 });
+
