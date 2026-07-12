@@ -17,11 +17,15 @@ export default function VoicePage() {
 
     recorder.ondataavailable = (event) => chunksRef.current.push(event.data);
     recorder.onstop = async () => {
-      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      const result = await submitTurn(blob, sessionId);
-      setSessionId(result.sessionId);
-      setTranscriptLog((log) => [...log, `Agent: ${result.reply}`]);
-      new Audio(result.replyAudioUrl).play();
+      try {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const result = await submitTurn(blob, sessionId);
+        setSessionId(result.sessionId);
+        setTranscriptLog((log) => [...log, `Agent: ${result.reply}`]);
+        new Audio(result.replyAudioUrl).play();
+      } finally {
+        stream.getTracks().forEach((track) => track.stop());
+      }
     };
 
     recorder.start();
