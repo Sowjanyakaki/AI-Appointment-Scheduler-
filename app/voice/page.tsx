@@ -22,7 +22,12 @@ export default function VoicePage() {
         const result = await submitTurn(blob, sessionId);
         setSessionId(result.sessionId);
         setTranscriptLog((log) => [...log, `Agent: ${result.reply}`]);
-        new Audio(result.replyAudioUrl).play();
+        const audio = new Audio(result.replyAudioUrl);
+        audio.addEventListener("ended", () => URL.revokeObjectURL(result.replyAudioUrl));
+        audio.play().catch((err) => {
+          console.error("Playback failed:", err);
+          URL.revokeObjectURL(result.replyAudioUrl);
+        });
       } finally {
         stream.getTracks().forEach((track) => track.stop());
       }

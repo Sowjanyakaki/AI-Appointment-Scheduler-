@@ -12,15 +12,27 @@ export default function BookingPortalPage() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!phone.trim() && !email.trim()) {
+      setError("Please provide a phone number or email.");
+      return;
+    }
+
     const res = await fetch("/api/portal/submit", {
       method: "POST",
       body: JSON.stringify({ token: params.token, phone, email }),
     });
 
     if (!res.ok) {
+      if (res.status === 400) {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "Please provide a phone number or email.");
+        return;
+      }
       setError("This link is invalid or has already been used.");
       return;
     }
+    setError(null);
     setSubmitted(true);
   }
 
@@ -33,11 +45,11 @@ export default function BookingPortalPage() {
       <form onSubmit={handleSubmit}>
         <label>
           Phone
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </label>
         <label>
           Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <button type="submit">Submit</button>
       </form>

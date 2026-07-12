@@ -34,4 +34,24 @@ describe("POST /api/portal/submit", () => {
     const res = await POST(submitRequest({ token, phone: "9876543210" }));
     expect(res.status).toBe(410);
   });
+
+  it("rejects a submission with blank phone and email with 400 and does not burn the token", async () => {
+    const { token } = createSecureLink("NL-A742");
+
+    const res = await POST(submitRequest({ token, phone: "  ", email: "" }));
+    expect(res.status).toBe(400);
+
+    const row = getDb().prepare("SELECT * FROM portal_contacts WHERE token = ?").get(token);
+    expect(row).toBeUndefined();
+
+    const retryRes = await POST(submitRequest({ token, phone: "9876543210" }));
+    expect(retryRes.status).toBe(200);
+  });
+
+  it("rejects a submission with missing phone and email fields with 400", async () => {
+    const { token } = createSecureLink("NL-A742");
+
+    const res = await POST(submitRequest({ token }));
+    expect(res.status).toBe(400);
+  });
 });

@@ -14,12 +14,18 @@ export async function POST(request: Request) {
     return Response.json({ error: "This link is invalid or has already been used." }, { status: 410 });
   }
 
+  const phone = body.phone?.trim() ?? "";
+  const email = body.email?.trim() ?? "";
+  if (!phone && !email) {
+    return Response.json({ error: "Please provide a phone number or email." }, { status: 400 });
+  }
+
   getDb()
     .prepare(
       `INSERT INTO portal_contacts (token, phone, email, account_number, submitted_at)
        VALUES (?, ?, ?, ?, datetime('now'))`
     )
-    .run(body.token, body.phone ?? null, body.email ?? null, body.accountNumber ?? null);
+    .run(body.token, phone || null, email || null, body.accountNumber ?? null);
 
   markLinkUsed(body.token);
 
