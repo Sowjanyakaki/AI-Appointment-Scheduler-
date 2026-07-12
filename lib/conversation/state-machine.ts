@@ -1,11 +1,10 @@
-import { randomUUID } from "node:crypto";
-import { getDb } from "@/lib/db/client";
 import { containsPII } from "./pii-guard";
 import { isInvestmentAdviceRequest, SCOPE_REFUSAL_MESSAGE } from "./scope-guardrail";
 import { classifyIntent } from "./intent-classifier";
 import { matchTopic } from "./topics";
 import { listSlots, createHold, appendEntry, prepareDraft } from "@/lib/mcp/client";
 import { generateBookingCode } from "@/lib/booking/code-generator";
+import { createSecureLink } from "@/lib/portal/secure-links";
 import { saveSession, type Session } from "./session-store";
 import type { Slot } from "@/lib/mcp/client";
 
@@ -18,7 +17,6 @@ const PII_REDIRECT =
 
 const NOTES_DOC_ID = process.env.NOTES_DOC_ID ?? "advisor-pre-bookings";
 const ADVISOR_EMAIL = process.env.ADVISOR_EMAIL ?? "advisor@example.com";
-const SECURE_LINK_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 function acceptsSlot(text: string): "first" | "second" | "neither" {
   const lower = text.toLowerCase();
@@ -26,23 +24,6 @@ function acceptsSlot(text: string): "first" | "second" | "neither" {
   if (/second|2nd|two\b/.test(lower)) return "second";
   if (/neither|none|no /.test(lower)) return "neither";
   return "neither";
-}
-
-// Generates a one-time portal link for the caller to submit contact details
-// off-call (per architecture.md's no-PII-on-the-call constraint). The
-// secure_links table already exists in the schema (Task 2); the portal
-// page itself is built in a later phase.
-function createSecureLink(bookingCode: string): string {
-  const db = getDb();
-  const token = randomUUID();
-  const expiresAt = new Date(Date.now() + SECURE_LINK_TTL_MS).toISOString();
-
-  db.prepare(
-    `INSERT INTO secure_links (token, booking_code, used, expires_at, created_at)
-     VALUES (?, ?, 0, ?, datetime('now'))`
-  ).run(token, bookingCode, expiresAt);
-
-  return `/booking/${token}`;
 }
 
 export interface AdvanceResult {
@@ -113,7 +94,7 @@ export async function advance(session: Session, callerText: string): Promise<Adv
       const choice = acceptsSlot(callerText);
       const code =
         choice === "neither" ? generateBookingCode("waitlist") : generateBookingCode("booking");
-      const link = createSecureLink(code);
+      const { url: link } = createSecureLink(code);
 
       if (choice === "neither") {
         session.bookingCode = code;
