@@ -38,10 +38,10 @@ export function Hero() {
       </ul>
 
       <div className={styles.ctas}>
-        <button type="button" className={styles.primaryCta}>
+        <a href="/voice" className={styles.primaryCta}>
           <PhoneIcon className={styles.ctaIcon} />
           Talk to Voice Agent
-        </button>
+        </a>
         <a href="#how-it-works" className={styles.secondaryCta}>
           <PlayIcon className={styles.ctaIcon} />
           See How It Works

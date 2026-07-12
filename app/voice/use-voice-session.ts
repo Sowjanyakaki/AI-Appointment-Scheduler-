@@ -3,6 +3,7 @@ export interface TurnResult {
   reply: string;
   state: string;
   replyAudioUrl: string;
+  transcript: string;
 }
 
 export async function submitTurn(audioBlob: Blob, sessionId: string | null): Promise<TurnResult> {
@@ -34,5 +35,5 @@ export async function submitTurn(audioBlob: Blob, sessionId: string | null): Pro
   const wavBytes = await synthesizeRes.arrayBuffer();
   const replyAudioUrl = URL.createObjectURL(new Blob([wavBytes], { type: "audio/wav" }));
 
-  return { sessionId: nextSessionId, reply, state, replyAudioUrl };
+  return { sessionId: nextSessionId, reply, state, replyAudioUrl, transcript };
 }

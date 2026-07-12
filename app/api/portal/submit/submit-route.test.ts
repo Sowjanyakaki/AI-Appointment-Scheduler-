@@ -1,8 +1,13 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import fs from "node:fs";
 import { resetDbForTests, getDb } from "@/lib/db/client";
 import { createSecureLink } from "@/lib/portal/secure-links";
 import { POST } from "./route";
+
+vi.mock("@/lib/mcp/client", () => ({
+  addAttendee: vi.fn().mockResolvedValue({ status: "ok" }),
+}));
+
 
 beforeEach(() => {
   resetDbForTests();

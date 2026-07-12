@@ -44,3 +44,11 @@ Service-account-credentials.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local databases and binaries
+/data/
+/bin/
+/.claude/
+*.wav
+*.db*
+

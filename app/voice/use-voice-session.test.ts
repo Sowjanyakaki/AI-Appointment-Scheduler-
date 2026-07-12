@@ -29,6 +29,7 @@ describe("submitTurn", () => {
     expect(result.sessionId).toBe("sess-1");
     expect(result.state).toBe("TIME_PREFERENCE_COLLECT");
     expect(result.replyAudioUrl).toBe("blob:fake-url");
+    expect(result.transcript).toBe("book a SIP call");
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 

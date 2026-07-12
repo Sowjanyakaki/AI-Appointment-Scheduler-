@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/db/client";
 import { resolveSecureLink, markLinkUsed } from "@/lib/portal/secure-links";
+import { addAttendee } from "@/lib/mcp/client";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -28,6 +29,14 @@ export async function POST(request: Request) {
     .run(body.token, phone || null, email || null, body.accountNumber ?? null);
 
   markLinkUsed(body.token);
+
+  if (email && !resolved.bookingCode.startsWith("NL-W")) {
+    try {
+      await addAttendee(resolved.bookingCode, email);
+    } catch (error) {
+      console.error(`Failed to add attendee to calendar hold for code ${resolved.bookingCode}:`, error);
+    }
+  }
 
   return Response.json({ status: "ok" });
 }

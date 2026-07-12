@@ -53,3 +53,8 @@ export function prepareDraft(to: string, subject: string, body: string) {
     { to, subject, body }
   );
 }
+
+export function addAttendee(code: string, email: string) {
+  return mcpFetch<{ status: string }>("/add_attendee", { code, email });
+}
+
